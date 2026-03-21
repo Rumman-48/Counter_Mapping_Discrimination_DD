@@ -245,6 +245,19 @@
       }
     }
 
+    async function deleteIncident(docId) {
+  if (!confirm("Permanently delete this incident? This cannot be undone.")) return;
+  const { doc, deleteDoc } = window._fbAdmin;
+  try {
+    await deleteDoc(doc(window._db, "incidents", docId));
+    showToast("DELETED.");
+  } catch(e) {
+    showToast("Error: " + e.message);
+  }
+}
+
+    
+
     function renderFeedback() {
       const el = document.getElementById("feedback-list");
       if (allFeedback.length === 0) {
