@@ -4,7 +4,6 @@
 
 const STRINGS = {
   en: {
-    subtitle: "rumman-dresden.xyz",
     nav_all: "ALL", nav_feb13: "FEB 13", nav_nbh: "DISTRICTS",
     nav_propose: "PROPOSE", nav_privacy: "PRIVACY",
     filter: "FILTER:", add_cat_btn: "CATEGORY",
@@ -182,15 +181,17 @@ function overpassToGeoJSON(rel) {
 
 function showNeighborhoodOnMap(name) {
   if (activeNbhLayer) { map.removeLayer(activeNbhLayer); activeNbhLayer = null; }
-  fetchNeighborhoodBoundary(name).then(gj => {
-    if (!gj) return;
-    activeNbhLayer = L.geoJSON(gj, {
-      style: { color: "#c8102e", weight: 2.5, dashArray: "7 4", fillColor: "#f5d000", fillOpacity: 0.18 }
-    }).addTo(map);
-    try { map.fitBounds(activeNbhLayer.getBounds(), { padding: [40, 40] }); } catch(e) {}
-  });
+  const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 8000));
+  Promise.race([fetchNeighborhoodBoundary(name), timeout])
+    .then(gj => {
+      if (!gj) { showToast("No boundary found for " + name); return; }
+      activeNbhLayer = L.geoJSON(gj, {
+        style: { color: "#c8102e", weight: 2.5, dashArray: "7 4", fillColor: "#f5d000", fillOpacity: 0.18 }
+      }).addTo(map);
+      try { map.fitBounds(activeNbhLayer.getBounds(), { padding: [40, 40] }); } catch(e) {}
+    })
+    .catch(() => showToast("Could not load boundary — try again later."));
 }
-
 // ---------- MAP CLICK — PIN ----------
 map.on("click", function (e) {
   if (document.getElementById("report-modal").style.display !== "none") return;
