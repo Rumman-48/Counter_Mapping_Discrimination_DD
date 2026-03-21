@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Moderation — Counter Mapping Dresden</title>
+  <title>Moderation -Counter Mapping Dresden</title>
   <!-- No index for search engines -->
   <meta name="robots" content="noindex, nofollow" />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
@@ -60,7 +60,7 @@
   <!-- ADMIN PANEL (hidden until login) -->
   <div id="admin-wrap" style="display:none">
     <div class="admin-header">
-      <h1>MODERATION PANEL — Counter Mapping Dresden</h1>
+      <h1>MODERATION PANEL - Counter Mapping Dresden</h1>
       <div style="display:flex;align-items:center;gap:10px">
         <a href="index.html" class="small-btn">VIEW MAP</a>
         <button class="logout-btn" onclick="logout()" style="background:var(--ink)">LOGOUT</button>
@@ -97,16 +97,13 @@
       getFirestore, collection, onSnapshot, doc, updateDoc, deleteDoc, getDocs
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    // ================================================================
-    // REPLACE with your Firebase config (same as index.html)
-    // ================================================================
     const firebaseConfig = {
-      apiKey: "REPLACE_WITH_YOUR_API_KEY",
-      authDomain: "REPLACE_WITH_YOUR_AUTH_DOMAIN",
-      projectId: "REPLACE_WITH_YOUR_PROJECT_ID",
-      storageBucket: "REPLACE_WITH_YOUR_STORAGE_BUCKET",
-      messagingSenderId: "REPLACE_WITH_YOUR_MESSAGING_SENDER_ID",
-      appId: "REPLACE_WITH_YOUR_APP_ID"
+      apiKey: "FIREBASE_API_KEY",
+      authDomain: "FIREBASE_AUTH_DOMAIN",
+      projectId: "FIREBASE_PROJECT_ID",
+      storageBucket: "FIREBASE_STORAGE_BUCKET",
+      messagingSenderId: "FIREBASE_MESSAGING_SENDER_ID",
+      appId: "FIREBASE_APP_ID"
     };
     // ================================================================
 
@@ -121,10 +118,10 @@
   <script>
     // ================================================================
     // SET YOUR ADMIN PASSWORD HERE
-    // This is a simple client-side password — it keeps casual visitors
+    // This is a simple client-side password -it keeps casual visitors
     // out. For stronger security, use Firebase Authentication (see SETUP.md).
     // ================================================================
-    const ADMIN_PASSWORD = "REPLACE_WITH_YOUR_ADMIN_PASSWORD";
+    const ADMIN_PASSWORD = "ADMIN_PASSWORD";
     // ================================================================
 
     const DEFAULT_CATEGORIES = [
@@ -242,7 +239,7 @@
           status,
           moderatedAt: Date.now()
         });
-        showToast(status.toUpperCase() + " — done.");
+        showToast(status.toUpperCase() + " -done.");
       } catch(e) {
         showToast("Error: " + e.message);
       }
