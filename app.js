@@ -13,8 +13,9 @@ const STRINGS = {
     victim_nationality: "NATIONALITY / ORIGIN",
     perpetrator_label: "PERPETRATOR", date_label: "DATE",
     time_label: "APPROXIMATE TIME", description_label: "DESCRIPTION",
-    location_label: "LOCATION",
+    location_label: "LOCATION — START TYPING A DRESDEN ADDRESS",
     location_hint: "Or close this form and click the map to drop a pin, then reopen.",
+    neighborhood_label: "NEIGHBORHOOD / DISTRICT",
     feb13_label: "This occurred on or relates to February 13",
     consent_title: "DATA CONSENT REQUIRED",
     consent_text: "This form collects special category data under GDPR Article 9 (nationality, ethnic or political background). You explicitly consent to this data being stored, reviewed by moderators, and published anonymously on this map for the purpose of documenting discrimination in Dresden. You can request deletion at any time via the privacy page.",
@@ -61,8 +62,9 @@ const STRINGS = {
     victim_nationality: "NATIONALITAT / HERKUNFT",
     perpetrator_label: "TATER / TATERIN", date_label: "DATUM",
     time_label: "UNGEFAHR UHRZEIT", description_label: "BESCHREIBUNG",
-    location_label: "ORT",
+    location_label: "ORT — DRESDNER ADRESSE EINGEBEN",
     location_hint: "Oder Formular schliessen und auf Karte klicken, um eine Nadel zu setzen.",
+    neighborhood_label: "STADTTEIL",
     feb13_label: "Bezieht sich auf den 13. Februar",
     consent_title: "EINWILLIGUNG ERFORDERLICH",
     consent_text: "Dieses Formular erhebt besondere Kategorien personenbezogener Daten gemas DSGVO Art. 9 (Nationalitat, ethnische oder politische Herkunft). Sie willigen ausdriicklich ein, dass diese Daten gespeichert, von Moderatoren gepruft und anonym auf dieser Karte veroffentlicht werden, um Diskriminierung in Dresden zu dokumentieren. Sie konnen jederzeit die Loschung uber die Datenschutzseite beantragen.",
@@ -114,6 +116,7 @@ function toggleLang() {
   renderCategoryBar();
   renderNeighborhoodList();
   renderTypeChips();
+  populateDistrictDropdowns();
 }
 
 function applyI18n() {
@@ -325,18 +328,27 @@ function renderTypeChips() {
 }
 
 async function submitReport() {
+  const err = (msg) => { document.getElementById("form-error").textContent = msg; };
+
   const selectedChip = document.querySelector(".type-chip.selected");
-  if (!selectedChip) { document.getElementById("form-error").textContent = t("error_type"); return; }
+  if (!selectedChip) { err(t("error_type")); return; }
 
   const address = document.getElementById("f-address").value.trim();
-  const date = document.getElementById("f-date").value;
+  const date    = document.getElementById("f-date").value;
   const consent = document.getElementById("f-consent").checked;
-  const honeypot = document.getElementById("f-honeypot").value;
-  if (honeypot) return; // bot filled the hidden field -> silently drop
+ // Honeypot: hidden from humans, bots fill it automatically -->
+  input type    ="text" id="f-honeypot" name="website" autocomplete="off" tabindex="-1" style="position:absolute;left:-9999px;opacity:0;height:0;width:0" 
 
-  if (!pendingPin && !address) { document.getElementById("form-error").textContent = t("error_location"); return; }
-  if (!date) { document.getElementById("form-error").textContent = t("error_date"); return; }
-  if (!consent) { document.getElementById("form-error").textContent = t("error_consent"); return; }
+  if (!pendingPin && !address) { err(t("error_location")); return; }
+  if (!date)    { err(t("error_date"));    return; }
+  if (!consent) { err(t("error_consent")); return; }
+
+  // Show loading state
+  const btn = document.querySelector("#report-modal .primary-btn");
+  const origText = btn.textContent;
+  btn.textContent = "SAVING...";
+  btn.disabled = true;
+  err("");
 
   let lat = pendingPin ? pendingPin.lat : null;
   let lng = pendingPin ? pendingPin.lng : null;
@@ -347,24 +359,34 @@ async function submitReport() {
   }
 
   const record = {
-    categoryId: selectedChip.dataset.id,
-    victimAge: document.getElementById("f-victim-age").value || null,
-    victimGender: document.getElementById("f-victim-gender").value || null,
+    categoryId:        selectedChip.dataset.id,
+    victimAge:         document.getElementById("f-victim-age").value || null,
+    victimGender:      document.getElementById("f-victim-gender").value || null,
     victimNationality: document.getElementById("f-victim-nationality").value.trim() || null,
-    perpetrator: document.getElementById("f-perpetrator").value.trim() || null,
+    perpetrator:       document.getElementById("f-perpetrator").value.trim() || null,
     date,
-    time: document.getElementById("f-time").value || null,
-    description: document.getElementById("f-description").value.trim() || null,
-    address: address || null,
+    time:              document.getElementById("f-time").value || null,
+    description:       document.getElementById("f-description").value.trim() || null,
+    address:           address || null,
+    neighborhood:      document.getElementById("f-neighborhood").value || null,
     lat, lng,
-    feb13: document.getElementById("f-feb13").checked,
-    consentGiven: true,
-    consentTimestamp: Date.now(),
-    status: "pending",        // all new submissions are pending moderation
-    createdAt: Date.now(),
+    feb13:             document.getElementById("f-feb13").checked,
+    consentGiven:      true,
+    consentTimestamp:  Date.now(),
+    status:            "pending",
+    createdAt:         Date.now(),
   };
 
-  await saveToFirestore("incidents", record);
+  const ok = await saveToFirestore("incidents", record);
+
+  btn.textContent = origText;
+  btn.disabled = false;
+
+  if (!ok) {
+    err("Submission failed. Check your internet connection. If the problem persists, Firebase may not be configured yet.");
+    return;
+  }
+
   incidents.push(record);
   resetReportForm();
   closeModal("report-modal");
@@ -376,14 +398,73 @@ function resetReportForm() {
   ["f-victim-age","f-victim-nationality","f-perpetrator","f-address","f-description"].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = "";
   });
-  ["f-victim-gender"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
+  ["f-victim-gender","f-neighborhood"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
   ["f-date","f-time"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
   ["f-feb13","f-consent"].forEach(id => { const el = document.getElementById(id); if (el) el.checked = false; });
   document.querySelectorAll(".type-chip").forEach(c => c.classList.remove("selected"));
   document.getElementById("form-error").textContent = "";
+  hideSuggestions();
 }
 
-// ---------- GEOCODING ----------
+// ---------- ADDRESS AUTOCOMPLETE ----------
+let autocompleteTimer = null;
+
+function addressAutocomplete(val) {
+  clearTimeout(autocompleteTimer);
+  if (val.length < 3) { hideSuggestions(); return; }
+  autocompleteTimer = setTimeout(() => fetchSuggestions(val), 350);
+}
+
+async function fetchSuggestions(val) {
+  try {
+    const q = encodeURIComponent(val + ", Dresden");
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=5&countrycodes=de&addressdetails=1`,
+      { headers: { "Accept-Language": lang === "de" ? "de" : "en" } }
+    );
+    const data = await res.json();
+    showSuggestions(data);
+  } catch(e) { hideSuggestions(); }
+}
+
+function showSuggestions(results) {
+  const box = document.getElementById("address-suggestions");
+  if (!results.length) { hideSuggestions(); return; }
+  box.innerHTML = "";
+  results.forEach(r => {
+    const item = document.createElement("div");
+    item.className = "suggestion-item";
+    // Show a clean short label
+    const label = r.display_name.replace(", Deutschland", "").replace(", Germany", "");
+    item.textContent = label;
+    item.onclick = () => {
+      document.getElementById("f-address").value = label;
+      // Set pin from geocode result
+      const lat = parseFloat(r.lat);
+      const lng = parseFloat(r.lon);
+      pendingPin = { lat, lng };
+      if (pinMarker) map.removeLayer(pinMarker);
+      pinMarker = L.circleMarker([lat, lng], {
+        radius: 8, color: "#0d0d0d", fillColor: "#f5d000", fillOpacity: 1, weight: 2.5,
+      }).addTo(map);
+      showPinPreview({ lat, lng });
+      hideSuggestions();
+    };
+    box.appendChild(item);
+  });
+  box.style.display = "block";
+}
+
+function hideSuggestions() {
+  const box = document.getElementById("address-suggestions");
+  if (box) { box.style.display = "none"; box.innerHTML = ""; }
+}
+
+document.addEventListener("click", (e) => {
+  if (!e.target.closest("#f-address") && !e.target.closest("#address-suggestions")) hideSuggestions();
+});
+
+// ---------- GEOCODING (fallback for manual entry without selecting suggestion) ----------
 async function geocodeAddress(address) {
   try {
     const q = encodeURIComponent(address + ", Dresden, Germany");
@@ -421,6 +502,7 @@ async function submitCategory() {
 function openNeighborhoodPanel() {
   document.getElementById("neighborhood-panel").style.display = "flex";
   renderNeighborhoodList();
+  populateDistrictDropdowns();
 }
 
 function renderNeighborhoodList() {
@@ -511,10 +593,18 @@ async function submitFeedback() {
 
 // ---------- FIREBASE ----------
 async function saveToFirestore(col, data) {
-  if (!window._dbReady) return;
+  if (!window._dbReady) {
+    console.error("Firebase not initialised. Check that your API keys are set correctly in index.html.");
+    return false;
+  }
   const { collection, addDoc } = window._fbModules;
-  try { await addDoc(collection(window._db, col), data); }
-  catch (e) { console.warn("Firestore save failed:", e); }
+  try {
+    await addDoc(collection(window._db, col), data);
+    return true;
+  } catch (e) {
+    console.error("Firestore save failed:", e.code, e.message);
+    return false;
+  }
 }
 
 function loadFromFirestore() {
@@ -564,10 +654,64 @@ function showToast(msg) {
   toastTimer = setTimeout(() => t.classList.remove("show"), 2400);
 }
 
+// ---------- DRESDEN ORTSTEILE (official list) ----------
+const DRESDEN_DISTRICTS = [
+  "Altstadt", "Johannstadt-Nord", "Johannstadt-Sud",
+  "Seevorstadt-Ost", "Seevorstadt-West", "Wilsdruffer Vorstadt",
+  "Pirnaische Vorstadt", "Racknitz und Zschertnitz",
+  "Striesen-Ost", "Striesen-Mitte", "Striesen-West",
+  "Blasewitz", "Tolkewitz", "Seidnitz", "Gruna",
+  "Laubegast", "Kleinzschachwitz", "Grosszschachwitz",
+  "Neustadt", "Albertstadt", "Innere Neustadt",
+  "Aussere Neustadt", "Loschwitz", "Wachwitz",
+  "Hosterwitz", "Pillnitz", "Weissig", "Schullwitz",
+  "Eschdorf", "Pappritz", "Rockau", "Gohlis",
+  "Kreischa (Umland)", "Prohlis-Nord", "Prohlis-Sud",
+  "Strehlen", "Reick", "Leuben", "Meussegast",
+  "Mockritz", "Coschütz", "Gittersee",
+  "Plauen", "Cotta", "Lobtau-Nord", "Lobtau-Sud",
+  "Naußlitz", "Gorbitz-Nord", "Gorbitz-Ost", "Gorbitz-Sud",
+  "Briesnitz", "Obergohlis", "Niedergohlis",
+  "Pieschen-Nord", "Pieschen-Sud", "Mickten", "Kaditz",
+  "Trachenberge", "Übigau", "Radebeul (Umland)",
+  "Klotzsche", "Hellerau", "Wilschdorf", "Langebrück",
+  "Schonborn", "Marsdorf", "Friedersdorf",
+  "Weixdorf", "Gomlitz", "Lausa",
+  "Leuteritz", "Boxdorf", "Cossebaude",
+  "Mobschatz", "Oberwartha", "Steinbach",
+  "Gompitz", "Altgorbitz", "Pennrich",
+  "Rossendorf", "Schullwitz", "Borsberg"
+].sort();
+
+function populateDistrictDropdowns() {
+  // Report form dropdown
+  const formSel = document.getElementById("f-neighborhood");
+  if (formSel) {
+    formSel.innerHTML = `<option value="">${lang === "de" ? "Stadtteil wahlen (optional)" : "select a district (optional)"}</option>`;
+    DRESDEN_DISTRICTS.forEach(d => {
+      const opt = document.createElement("option");
+      opt.value = d; opt.textContent = d;
+      formSel.appendChild(opt);
+    });
+  }
+  // Neighborhood panel dropdown — only show districts not already added
+  const panelSel = document.getElementById("nbh-new-name");
+  if (panelSel) {
+    const existing = new Set(neighborhoods.map(n => n.name));
+    panelSel.innerHTML = `<option value="">${lang === "de" ? "Stadtteil hinzufugen" : "select a district to add"}</option>`;
+    DRESDEN_DISTRICTS.filter(d => !existing.has(d)).forEach(d => {
+      const opt = document.createElement("option");
+      opt.value = d; opt.textContent = d;
+      panelSel.appendChild(opt);
+    });
+  }
+}
+
 // ---------- INIT ----------
 function init() {
   renderCategoryBar();
   renderTypeChips();
+  populateDistrictDropdowns();
   applyI18n();
   if (window._dbReady) loadFromFirestore();
   else document.addEventListener("db-ready", loadFromFirestore);
