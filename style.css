@@ -1,6 +1,5 @@
 /* ============================================================
    COUNTER MAPPING DISCRIMINATION IN DRESDEN
-   Zine / activist — high contrast, raw, printlike
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap');
@@ -670,3 +669,33 @@ label:has(input[type="checkbox"]) {
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--ink); }
+
+/* ---- ADDRESS AUTOCOMPLETE ---- */
+.suggestions-list {
+  position: absolute;
+  top: 100%;
+  left: 0; right: 0;
+  background: #fff;
+  border: 2px solid var(--ink);
+  border-top: none;
+  z-index: 9999;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+.suggestion-item {
+  font-family: var(--font-body);
+  font-size: 12px;
+  padding: 8px 10px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--paper);
+  line-height: 1.4;
+}
+
+.suggestion-item:hover {
+  background: var(--yellow);
+}
+
+.suggestion-item:last-child { border-bottom: none; }
+
