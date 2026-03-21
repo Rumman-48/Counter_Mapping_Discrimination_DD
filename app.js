@@ -330,6 +330,8 @@ async function submitReport() {
   const address = document.getElementById("f-address").value.trim();
   const date = document.getElementById("f-date").value;
   const consent = document.getElementById("f-consent").checked;
+  const honeypot = document.getElementById("f-honeypot").value;
+  if (honeypot) return; // bot filled the hidden field -> silently drop
 
   if (!pendingPin && !address) { document.getElementById("form-error").textContent = t("error_location"); return; }
   if (!date) { document.getElementById("form-error").textContent = t("error_date"); return; }
