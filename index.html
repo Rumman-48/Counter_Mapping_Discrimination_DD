@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Counter Mapping Discrimination in Dresden</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header id="topbar">
+    <div id="site-title">
+      Counter Mapping Discrimination in Dresden
+      <span data-i18n="subtitle">rumman-dresden.xyz</span>
+    </div>
+    <nav id="topnav">
+      <button class="nav-btn active" data-view="all" onclick="setView('all')" data-i18n="nav_all">ALL</button>
+      <button class="nav-btn" data-view="feb13" onclick="setView('feb13')" data-i18n="nav_feb13">FEB 13</button>
+      <button class="nav-btn" onclick="openNeighborhoodPanel()" data-i18n="nav_nbh">DISTRICTS</button>
+      <button class="nav-btn" onclick="openFeedbackModal()" data-i18n="nav_propose">PROPOSE</button>
+      <a class="nav-btn" href="privacy.html" data-i18n="nav_privacy">PRIVACY</a>
+      <button class="lang-btn" onclick="toggleLang()">DE</button>
+    </nav>
+  </header>
+
+  <div id="category-bar">
+    <div id="category-list">
+      <span class="cat-label" data-i18n="filter">FILTER:</span>
+    </div>
+    <button id="add-cat-btn" onclick="openAddCategoryModal()">+ <span data-i18n="add_cat_btn">CATEGORY</span></button>
+  </div>
+
+  <div id="map"></div>
+
+  <button id="report-btn" onclick="openReportModal()">
+    <span data-i18n="report_btn">REPORT AN INCIDENT</span>
+  </button>
+
+  <!-- ===== REPORT MODAL ===== -->
+  <div id="report-modal" class="modal-overlay" style="display:none">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal('report-modal')">×</button>
+      <h2 data-i18n="report_title">REPORT AN INCIDENT</h2>
+
+      <div class="form-section">
+        <label data-i18n="type_label">TYPE OF DISCRIMINATION</label>
+        <div id="type-chips" class="chip-group"></div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label data-i18n="victim_age">VICTIM AGE</label>
+          <input type="number" id="f-victim-age" min="1" max="120" placeholder="e.g. 34" />
+        </div>
+        <div class="form-group">
+          <label data-i18n="victim_gender">VICTIM GENDER</label>
+          <select id="f-victim-gender">
+            <option value="">select</option>
+            <option value="woman">Woman</option>
+            <option value="man">Man</option>
+            <option value="nonbinary">Non-binary</option>
+            <option value="other">Prefer not to say</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label data-i18n="victim_nationality">NATIONALITY / ORIGIN</label>
+          <input type="text" id="f-victim-nationality" placeholder="e.g. Syrian" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label data-i18n="perpetrator_label">PERPETRATOR</label>
+        <input type="text" id="f-perpetrator" placeholder="e.g. group of men, police officer, shop employee" />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label data-i18n="date_label">DATE</label>
+          <input type="date" id="f-date" />
+        </div>
+        <div class="form-group">
+          <label data-i18n="time_label">APPROXIMATE TIME</label>
+          <input type="time" id="f-time" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label data-i18n="description_label">DESCRIPTION</label>
+        <textarea id="f-description" rows="3"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label data-i18n="location_label">LOCATION</label>
+        <input type="text" id="f-address" />
+        <div id="location-hint" data-i18n="location_hint">Or close this form and click the map to drop a pin, then reopen.</div>
+      </div>
+
+      <div id="pin-preview" style="display:none">
+        <span id="pin-coords-label"></span>
+        <button class="small-btn" onclick="clearPin()" data-i18n="clear_pin">CLEAR PIN</button>
+      </div>
+
+      <div class="form-group">
+        <label>
+          <input type="checkbox" id="f-feb13" />
+          <span data-i18n="feb13_label">This occurred on or relates to February 13</span>
+        </label>
+      </div>
+
+      <!-- GDPR EXPLICIT CONSENT — required by Article 9 GDPR -->
+      <div class="consent-box">
+        <strong class="consent-title" data-i18n="consent_title">DATA CONSENT REQUIRED</strong>
+        <p class="consent-text" data-i18n="consent_text">This form collects special category data under GDPR Article 9 (nationality, ethnic or political background). You explicitly consent to this data being stored, reviewed by moderators, and published anonymously on this map for the purpose of documenting discrimination in Dresden. You can request deletion at any time by emailing the address on the privacy page.</p>
+        <label class="consent-label">
+          <input type="checkbox" id="f-consent" />
+          <span data-i18n="consent_check">I explicitly consent to the collection and publication of this data as described above.</span>
+        </label>
+      </div>
+
+      <button class="primary-btn" onclick="submitReport()" data-i18n="submit_btn">SUBMIT FOR REVIEW</button>
+      <p class="submit-note" data-i18n="submit_note">Submissions are reviewed before appearing on the map.</p>
+      <div id="form-error" class="form-error"></div>
+    </div>
+  </div>
+
+  <!-- ===== ADD CATEGORY MODAL ===== -->
+  <div id="add-category-modal" class="modal-overlay" style="display:none">
+    <div class="modal-box modal-box--sm">
+      <button class="modal-close" onclick="closeModal('add-category-modal')">×</button>
+      <h2 data-i18n="cat_title">PROPOSE A CATEGORY</h2>
+      <div class="form-group">
+        <label data-i18n="cat_name">CATEGORY NAME</label>
+        <input type="text" id="new-cat-name" />
+      </div>
+      <div class="form-group">
+        <label data-i18n="cat_desc">SHORT DESCRIPTION (optional)</label>
+        <textarea id="new-cat-desc" rows="2"></textarea>
+      </div>
+      <div class="form-group">
+        <label data-i18n="cat_color">MARKER COLOR</label>
+        <input type="color" id="new-cat-color" value="#c8102e" />
+      </div>
+      <button class="primary-btn" onclick="submitCategory()" data-i18n="cat_submit">ADD CATEGORY</button>
+    </div>
+  </div>
+
+  <!-- ===== NEIGHBORHOOD PANEL ===== -->
+  <div id="neighborhood-panel" class="side-panel" style="display:none">
+    <div class="panel-header">
+      <span data-i18n="nbh_title">DISTRICTS</span>
+      <button class="modal-close" style="position:static" onclick="closePanel('neighborhood-panel')">×</button>
+    </div>
+    <div id="nbh-list"></div>
+    <div class="panel-footer">
+      <input type="text" id="nbh-new-name" />
+      <button class="small-btn" onclick="addNeighborhood()" data-i18n="nbh_add">ADD</button>
+    </div>
+  </div>
+
+  <!-- ===== NEIGHBORHOOD NOTE MODAL ===== -->
+  <div id="nbh-note-modal" class="modal-overlay" style="display:none">
+    <div class="modal-box modal-box--sm">
+      <button class="modal-close" onclick="closeModal('nbh-note-modal')">×</button>
+      <h2 id="nbh-note-title"></h2>
+      <div id="nbh-notes-list"></div>
+      <div class="form-group" style="margin-top:14px">
+        <label data-i18n="nbh_note_label">ADD A NOTE</label>
+        <textarea id="nbh-note-text" rows="3"></textarea>
+      </div>
+      <button class="primary-btn" onclick="submitNeighborhoodNote()" data-i18n="nbh_note_submit">ADD NOTE</button>
+    </div>
+  </div>
+
+  <!-- ===== INCIDENT DETAIL MODAL ===== -->
+  <div id="incident-modal" class="modal-overlay" style="display:none">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal('incident-modal')">×</button>
+      <div id="incident-detail-content"></div>
+    </div>
+  </div>
+
+  <!-- ===== FEEDBACK MODAL ===== -->
+  <div id="feedback-modal" class="modal-overlay" style="display:none">
+    <div class="modal-box modal-box--sm">
+      <button class="modal-close" onclick="closeModal('feedback-modal')">×</button>
+      <h2 data-i18n="fb_title">PROPOSE SOMETHING NEW</h2>
+      <div class="github-note">
+        <strong data-i18n="gh_note_head">CONTRIBUTE DIRECTLY</strong>
+        <span data-i18n="gh_note_body">This project is open. You can commit changes, add data, or propose features directly on GitHub:</span>
+        <br /><a href="https://github.com/REPLACE_WITH_YOUR_GITHUB" target="_blank" rel="noopener">github.com/REPLACE_WITH_YOUR_GITHUB</a>
+      </div>
+      <p class="muted" data-i18n="fb_desc">Or write your idea here and we will consider implementing it.</p>
+      <div class="form-group">
+        <textarea id="fb-text" rows="4"></textarea>
+      </div>
+      <button class="primary-btn" onclick="submitFeedback()" data-i18n="fb_submit">SEND IDEA</button>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <!-- FIREBASE -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getFirestore, collection, addDoc, getDocs, onSnapshot, doc, updateDoc, arrayUnion, query, where
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    // ================================================================
+    //Firebase project config
+    // ================================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyAu_08-vvB7LOia4CFoI5jbDDu2M3JQXfo",
+  authDomain: "map-discrimination-dresden.firebaseapp.com",
+  projectId: "map-discrimination-dresden",
+  storageBucket: "map-discrimination-dresden.firebasestorage.app",
+  messagingSenderId: "682161666882",
+  appId: "1:682161666882:web:d4dd660eb5b429345de6db"
+};
+    // ================================================================
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    window._db = db;
+    window._fbModules = { collection, addDoc, getDocs, onSnapshot, doc, updateDoc, arrayUnion, query, where };
+    window._dbReady = true;
+    document.dispatchEvent(new Event("db-ready"));
+  </script>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

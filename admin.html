@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Moderation — Counter Mapping Dresden</title>
+  <!-- No index for search engines -->
+  <meta name="robots" content="noindex, nofollow" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body { overflow: auto; }
+    #admin-wrap { max-width: 860px; margin: 0 auto; padding: 24px 16px 60px; }
+    #admin-login { max-width: 340px; margin: 80px auto; }
+    #admin-login h1 { font-family: var(--font-head); font-size: 13px; letter-spacing: 0.12em; margin-bottom: 20px; border-bottom: 2.5px solid var(--ink); padding-bottom: 10px; }
+    .admin-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2.5px solid var(--ink); padding-bottom: 12px; margin-bottom: 24px; }
+    .admin-header h1 { font-family: var(--font-head); font-size: 13px; letter-spacing: 0.1em; }
+    .admin-tabs { display: flex; gap: 6px; margin-bottom: 20px; }
+    .tab-btn { font-family: var(--font-head); font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 6px 14px; border: 2px solid var(--ink); background: transparent; cursor: pointer; }
+    .tab-btn.active { background: var(--ink); color: var(--bg); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .incident-card { border: 2px solid var(--ink); padding: 16px; margin-bottom: 14px; background: #fff; }
+    .incident-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+    .incident-card-title { font-family: var(--font-head); font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+    .incident-card-date { font-family: var(--font-head); font-size: 9px; color: var(--muted); }
+    .incident-card-body { font-size: 12px; line-height: 1.6; margin-bottom: 12px; }
+    .card-field { margin-bottom: 6px; }
+    .card-field-label { font-family: var(--font-head); font-size: 8px; font-weight: 700; letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase; display: block; }
+    .card-actions { display: flex; gap: 8px; }
+    .approve-btn { font-family: var(--font-head); font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; background: #1a6b2e; color: #fff; border: 2px solid #1a6b2e; padding: 7px 16px; cursor: pointer; box-shadow: 2px 2px 0 var(--ink); }
+    .approve-btn:hover { background: #145523; }
+    .reject-btn { font-family: var(--font-head); font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; background: var(--red); color: #fff; border: 2px solid var(--red); padding: 7px 16px; cursor: pointer; box-shadow: 2px 2px 0 var(--ink); }
+    .reject-btn:hover { background: #9a0b22; }
+    .status-badge { display: inline-block; font-family: var(--font-head); font-size: 8px; font-weight: 700; padding: 3px 8px; border: 1.5px solid; margin-left: 8px; }
+    .status-pending { border-color: #e07b00; color: #e07b00; }
+    .status-approved { border-color: #1a6b2e; color: #1a6b2e; }
+    .status-rejected { border-color: var(--red); color: var(--red); }
+    .empty-state { font-family: var(--font-head); font-size: 10px; color: var(--muted); padding: 24px 0; text-align: center; letter-spacing: 0.1em; }
+    .logout-btn { font-family: var(--font-head); font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; background: transparent; border: 1.5px solid var(--bg); color: var(--bg); padding: 5px 10px; cursor: pointer; }
+    .feedback-card { border: 2px solid var(--ink); padding: 14px; margin-bottom: 10px; background: #fff; font-size: 12px; line-height: 1.6; }
+    .feedback-meta { font-family: var(--font-head); font-size: 8px; color: var(--muted); margin-top: 6px; }
+    #count-badge { font-family: var(--font-head); font-size: 9px; background: var(--red); color: #fff; padding: 2px 7px; margin-left: 6px; }
+    .map-small { height: 180px; border: 2px solid var(--ink); margin-bottom: 10px; }
+  </style>
+</head>
+<body style="background:var(--bg)">
+
+  <!-- LOGIN SCREEN -->
+  <div id="admin-login">
+    <h1>MODERATION LOGIN</h1>
+    <div class="form-group">
+      <label>PASSWORD</label>
+      <input type="password" id="admin-pw" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')checkLogin()" />
+    </div>
+    <button class="primary-btn" onclick="checkLogin()">ENTER</button>
+    <div id="login-error" class="form-error"></div>
+  </div>
+
+  <!-- ADMIN PANEL (hidden until login) -->
+  <div id="admin-wrap" style="display:none">
+    <div class="admin-header">
+      <h1>MODERATION PANEL — Counter Mapping Dresden</h1>
+      <div style="display:flex;align-items:center;gap:10px">
+        <a href="index.html" class="small-btn">VIEW MAP</a>
+        <button class="logout-btn" onclick="logout()" style="background:var(--ink)">LOGOUT</button>
+      </div>
+    </div>
+
+    <div class="admin-tabs">
+      <button class="tab-btn active" onclick="switchTab('pending')">PENDING <span id="count-badge">0</span></button>
+      <button class="tab-btn" onclick="switchTab('approved')">APPROVED</button>
+      <button class="tab-btn" onclick="switchTab('rejected')">REJECTED</button>
+      <button class="tab-btn" onclick="switchTab('feedback')">IDEAS</button>
+    </div>
+
+    <div id="tab-pending" class="tab-content active">
+      <div id="pending-list"></div>
+    </div>
+    <div id="tab-approved" class="tab-content">
+      <div id="approved-list"></div>
+    </div>
+    <div id="tab-rejected" class="tab-content">
+      <div id="rejected-list"></div>
+    </div>
+    <div id="tab-feedback" class="tab-content">
+      <div id="feedback-list"></div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <!-- FIREBASE -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getFirestore, collection, onSnapshot, doc, updateDoc, deleteDoc, getDocs
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    // ================================================================
+    // REPLACE with your Firebase config (same as index.html)
+    // ================================================================
+    const firebaseConfig = {
+      apiKey: "REPLACE_WITH_YOUR_API_KEY",
+      authDomain: "REPLACE_WITH_YOUR_AUTH_DOMAIN",
+      projectId: "REPLACE_WITH_YOUR_PROJECT_ID",
+      storageBucket: "REPLACE_WITH_YOUR_STORAGE_BUCKET",
+      messagingSenderId: "REPLACE_WITH_YOUR_MESSAGING_SENDER_ID",
+      appId: "REPLACE_WITH_YOUR_APP_ID"
+    };
+    // ================================================================
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    window._db = db;
+    window._fbAdmin = { collection, onSnapshot, doc, updateDoc, deleteDoc, getDocs };
+    window._dbReady = true;
+    document.dispatchEvent(new Event("db-ready"));
+  </script>
+
+  <script>
+    // ================================================================
+    // SET YOUR ADMIN PASSWORD HERE
+    // This is a simple client-side password — it keeps casual visitors
+    // out. For stronger security, use Firebase Authentication (see SETUP.md).
+    // ================================================================
+    const ADMIN_PASSWORD = "REPLACE_WITH_YOUR_ADMIN_PASSWORD";
+    // ================================================================
+
+    const DEFAULT_CATEGORIES = [
+      { id: "racial",    name: "Racial discrimination",   color: "#c8102e" },
+      { id: "political", name: "Political discrimination", color: "#0d3b8c" },
+    ];
+
+    let allIncidents = [];
+    let allFeedback = [];
+    let isLoggedIn = false;
+
+    function checkLogin() {
+      const pw = document.getElementById("admin-pw").value;
+      if (pw === ADMIN_PASSWORD) {
+        isLoggedIn = true;
+        document.getElementById("admin-login").style.display = "none";
+        document.getElementById("admin-wrap").style.display = "block";
+        if (window._dbReady) loadData();
+        else document.addEventListener("db-ready", loadData);
+      } else {
+        document.getElementById("login-error").textContent = "Incorrect password.";
+      }
+    }
+
+    function logout() {
+      isLoggedIn = false;
+      document.getElementById("admin-login").style.display = "block";
+      document.getElementById("admin-wrap").style.display = "none";
+      document.getElementById("admin-pw").value = "";
+    }
+
+    function switchTab(name) {
+      document.querySelectorAll(".tab-btn").forEach((b,i) => b.classList.toggle("active", ["pending","approved","rejected","feedback"][i] === name));
+      document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+      document.getElementById("tab-" + name).classList.add("active");
+    }
+
+    function loadData() {
+      const { collection, onSnapshot } = window._fbAdmin;
+      const db = window._db;
+
+      onSnapshot(collection(db, "incidents"), snap => {
+        allIncidents = snap.docs.map(d => ({ _docId: d.id, ...d.data() }));
+        renderLists();
+      });
+
+      onSnapshot(collection(db, "feedback"), snap => {
+        allFeedback = snap.docs.map(d => ({ _docId: d.id, ...d.data() }));
+        renderFeedback();
+      });
+    }
+
+    function renderLists() {
+      const pending  = allIncidents.filter(i => i.status === "pending" || !i.status);
+      const approved = allIncidents.filter(i => i.status === "approved");
+      const rejected = allIncidents.filter(i => i.status === "rejected");
+
+      document.getElementById("count-badge").textContent = pending.length;
+
+      renderIncidentList("pending-list",  pending,  true);
+      renderIncidentList("approved-list", approved, false);
+      renderIncidentList("rejected-list", rejected, false);
+    }
+
+    function renderIncidentList(containerId, list, showActions) {
+      const el = document.getElementById(containerId);
+      if (list.length === 0) {
+        el.innerHTML = `<div class="empty-state">NO INCIDENTS IN THIS CATEGORY</div>`;
+        return;
+      }
+      el.innerHTML = list.map(inc => incidentCard(inc, showActions)).join("");
+    }
+
+    function catName(id) {
+      const d = DEFAULT_CATEGORIES.find(c => c.id === id);
+      return d ? d.name : id;
+    }
+
+    function incidentCard(inc, showActions) {
+      const catColor = (DEFAULT_CATEGORIES.find(c => c.id === inc.categoryId) || {}).color || "#888";
+      const submittedDate = inc.createdAt ? new Date(inc.createdAt).toLocaleDateString("en-GB") : "unknown";
+      const victim = [inc.victimAge ? inc.victimAge + " y.o." : null, inc.victimGender, inc.victimNationality].filter(Boolean).join(", ") || "not specified";
+
+      return `
+        <div class="incident-card" id="card-${inc._docId}">
+          <div class="incident-card-head">
+            <div>
+              <span class="incident-card-title" style="color:${catColor}">${catName(inc.categoryId)}</span>
+              <span class="status-badge status-${inc.status || 'pending'}">${(inc.status || 'pending').toUpperCase()}</span>
+            </div>
+            <span class="incident-card-date">Submitted: ${submittedDate}</span>
+          </div>
+          <div class="incident-card-body">
+            <div class="card-field"><span class="card-field-label">VICTIM</span>${victim}</div>
+            ${inc.perpetrator ? `<div class="card-field"><span class="card-field-label">PERPETRATOR</span>${inc.perpetrator}</div>` : ""}
+            <div class="card-field"><span class="card-field-label">DATE OF INCIDENT</span>${inc.date || "not specified"}${inc.time ? " at " + inc.time : ""}</div>
+            ${inc.address ? `<div class="card-field"><span class="card-field-label">LOCATION</span>${inc.address}</div>` : ""}
+            ${inc.lat ? `<div class="card-field"><span class="card-field-label">COORDINATES</span>${inc.lat.toFixed(5)}, ${inc.lng.toFixed(5)}</div>` : ""}
+            ${inc.description ? `<div class="card-field"><span class="card-field-label">DESCRIPTION</span>${inc.description}</div>` : ""}
+            <div class="card-field"><span class="card-field-label">FEB 13</span>${inc.feb13 ? "Yes" : "No"}</div>
+            <div class="card-field"><span class="card-field-label">EXPLICIT CONSENT GIVEN</span>${inc.consentGiven ? "YES" : "NO"}</div>
+          </div>
+          ${showActions ? `
+          <div class="card-actions">
+            <button class="approve-btn" onclick="moderateIncident('${inc._docId}', 'approved')">APPROVE</button>
+            <button class="reject-btn"  onclick="moderateIncident('${inc._docId}', 'rejected')">REJECT</button>
+          </div>` : ""}
+        </div>`;
+    }
+
+    async function moderateIncident(docId, status) {
+      const { doc, updateDoc } = window._fbAdmin;
+      try {
+        await updateDoc(doc(window._db, "incidents", docId), {
+          status,
+          moderatedAt: Date.now()
+        });
+        showToast(status.toUpperCase() + " — done.");
+      } catch(e) {
+        showToast("Error: " + e.message);
+      }
+    }
+
+    function renderFeedback() {
+      const el = document.getElementById("feedback-list");
+      if (allFeedback.length === 0) {
+        el.innerHTML = `<div class="empty-state">NO IDEAS SUBMITTED YET</div>`;
+        return;
+      }
+      el.innerHTML = allFeedback.map(fb => `
+        <div class="feedback-card">
+          <div>${fb.text}</div>
+          <div class="feedback-meta">Submitted: ${fb.createdAt ? new Date(fb.createdAt).toLocaleDateString("en-GB") : "unknown"}</div>
+        </div>
+      `).join("");
+    }
+
+    let toastTimer;
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove("show"), 2400);
+    }
+  </script>
+</body>
+</html>

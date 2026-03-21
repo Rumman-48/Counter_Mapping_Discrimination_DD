@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Notice — Counter Mapping Discrimination in Dresden</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body { overflow: auto; }
+    #privacy-wrap {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 32px 20px 80px;
+    }
+    .privacy-header {
+      border-bottom: 3px solid var(--ink);
+      margin-bottom: 32px;
+      padding-bottom: 14px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .privacy-header h1 {
+      font-family: var(--font-head);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      line-height: 1.4;
+    }
+    .privacy-header .back-btn {
+      font-family: var(--font-head);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: var(--ink);
+      color: var(--bg);
+      border: 2px solid var(--ink);
+      padding: 7px 14px;
+      text-decoration: none;
+      white-space: nowrap;
+      box-shadow: 2px 2px 0 var(--red);
+    }
+    .lang-toggle {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 28px;
+    }
+    .lang-toggle button {
+      font-family: var(--font-head);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: transparent;
+      border: 2px solid var(--ink);
+      padding: 5px 12px;
+      cursor: pointer;
+    }
+    .lang-toggle button.active {
+      background: var(--ink);
+      color: var(--bg);
+    }
+    .privacy-content { display: none; }
+    .privacy-content.active { display: block; }
+    .privacy-content h2 {
+      font-family: var(--font-head);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin: 28px 0 10px;
+      border-left: 4px solid var(--red);
+      padding-left: 10px;
+    }
+    .privacy-content p {
+      font-size: 13px;
+      line-height: 1.7;
+      margin-bottom: 12px;
+    }
+    .privacy-content ul {
+      font-size: 13px;
+      line-height: 1.7;
+      padding-left: 20px;
+      margin-bottom: 12px;
+    }
+    .privacy-content li { margin-bottom: 5px; }
+    .highlight-box {
+      background: var(--yellow);
+      border: 2.5px solid var(--ink);
+      padding: 14px 16px;
+      margin: 20px 0;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .highlight-box strong {
+      font-family: var(--font-head);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 6px;
+    }
+    .contact-block {
+      border: 2.5px solid var(--ink);
+      padding: 14px 16px;
+      margin-top: 24px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .contact-block strong {
+      font-family: var(--font-head);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 6px;
+    }
+    .last-updated {
+      font-family: var(--font-head);
+      font-size: 8px;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      margin-top: 32px;
+    }
+  </style>
+</head>
+<body style="background:var(--bg)">
+  <div id="privacy-wrap">
+
+    <div class="privacy-header">
+      <h1>Privacy Notice<br><span style="color:var(--red);font-size:9px;font-weight:400">Counter Mapping Discrimination in Dresden</span></h1>
+      <a href="index.html" class="back-btn">BACK TO MAP</a>
+    </div>
+
+    <div class="lang-toggle">
+      <button class="active" onclick="showLang('en', this)">ENGLISH</button>
+      <button onclick="showLang('de', this)">DEUTSCH</button>
+    </div>
+
+    <!-- ENGLISH -->
+    <div class="privacy-content active" id="privacy-en">
+
+      <div class="highlight-box">
+        <strong>Important — before submitting an incident</strong>
+        This platform handles special category data under GDPR Article 9, including data that may reveal ethnic origin or political affiliation. Submission is entirely voluntary and requires your explicit consent. You may request deletion at any time.
+      </div>
+
+      <h2>1. Who is responsible for your data (Controller)</h2>
+      <p>This website is operated as a civic documentation project. The data controller is the person or organisation running this site at rumman-dresden.xyz. For deletion requests or questions, contact: <strong>REPLACE_WITH_YOUR_CONTACT_EMAIL</strong></p>
+
+      <h2>2. What data we collect and why</h2>
+      <p>When you submit an incident report, we may collect:</p>
+      <ul>
+        <li>Age, gender, and nationality or ethnic origin of the victim — these are special category data under GDPR Article 9(1)</li>
+        <li>A description of the perpetrator</li>
+        <li>Date, time, and location of the incident (text address or map coordinates)</li>
+        <li>A free-text description of the incident</li>
+        <li>Whether the incident relates to February 13</li>
+        <li>Timestamp of submission</li>
+      </ul>
+      <p>We do not collect your name, email, IP address, or any data that identifies you as the submitter. Submissions are anonymous by design.</p>
+
+      <h2>3. Legal basis for processing</h2>
+      <p>Processing of ordinary personal data is based on <strong>legitimate interest</strong> (GDPR Article 6(1)(f)) in documenting and raising awareness of discrimination in Dresden for civic and research purposes.</p>
+      <p>Processing of special category data (ethnic origin, political affiliation) is based on your <strong>explicit consent</strong> under GDPR Article 9(2)(a), given via the consent checkbox in the submission form. You may withdraw this consent at any time by requesting deletion of your submission.</p>
+      <p>We have assessed that collecting only the category of discrimination, approximate victim profile, and incident description is the minimum data necessary for the purpose of counter-mapping discrimination patterns. We do not collect identifying information about submitters.</p>
+
+      <h2>4. Who can see your data</h2>
+      <ul>
+        <li>All submissions are reviewed by a human moderator before publication</li>
+        <li>Approved submissions are displayed publicly on the map, anonymously</li>
+        <li>Rejected submissions are not published and are deleted within 30 days</li>
+        <li>Data is stored in Google Firebase Firestore (EU servers, Frankfurt region). Google acts as a data processor. See Google's privacy policy at policies.google.com/privacy</li>
+        <li>No data is sold, shared with advertisers, or passed to law enforcement without a legal obligation</li>
+      </ul>
+
+      <h2>5. How long we keep your data</h2>
+      <p>Approved incident data is kept as long as the project is active, as it forms part of the public historical record of discrimination in Dresden. Rejected submissions are deleted within 30 days. If you request deletion of an approved submission, we will remove it within 14 days.</p>
+
+      <h2>6. Cookies and tracking</h2>
+      <p>This website does not use tracking cookies, analytics services, or advertising. Firebase Firestore does not set tracking cookies. No cookie consent banner is required because no non-essential cookies or device storage are used.</p>
+
+      <h2>7. Your rights under GDPR</h2>
+      <p>You have the right to: access the data submitted under your report, correct inaccurate data, request deletion (right to erasure), object to processing, and lodge a complaint with the German data protection authority (BfDI: www.bfdi.bund.de or the Saxon LfD: www.saechsdsb.de).</p>
+      <p>Because submissions are anonymous, we can only process deletion requests if you can identify your specific submission (e.g. by providing the approximate date, location, and category you submitted).</p>
+
+      <h2>8. Children</h2>
+      <p>This platform is not directed at children under 16. If you are under 16, please do not submit incident reports.</p>
+
+      <div class="contact-block">
+        <strong>Contact for data requests</strong>
+        To request deletion, access, or correction of submitted data, or to ask questions about this privacy notice, email: <strong>REPLACE_WITH_YOUR_CONTACT_EMAIL</strong>
+      </div>
+
+      <p class="last-updated">Last updated: March 2026. This notice will be updated if processing activities change.</p>
+    </div>
+
+    <!-- GERMAN -->
+    <div class="privacy-content" id="privacy-de">
+
+      <div class="highlight-box">
+        <strong>Wichtig vor der Einreichung eines Vorfalls</strong>
+        Diese Plattform verarbeitet besondere Kategorien personenbezogener Daten gemas DSGVO Artikel 9, einschliesslich Daten, die ethnische Herkunft oder politische Zugehorigkeit offenbaren konnen. Die Einreichung ist freiwillig und erfordert Ihre ausdriickliche Einwilligung. Sie konnen jederzeit die Loschung beantragen.
+      </div>
+
+      <h2>1. Verantwortlicher</h2>
+      <p>Diese Website wird als burgerschaftliches Dokumentationsprojekt betrieben. Verantwortlicher im Sinne der DSGVO ist die Person oder Organisation, die diese Seite unter rumman-dresden.xyz betreibt. Kontakt fur Loschungsanfragen: <strong>REPLACE_WITH_YOUR_CONTACT_EMAIL</strong></p>
+
+      <h2>2. Welche Daten wir erheben und warum</h2>
+      <p>Bei der Einreichung eines Vorfalls konnen folgende Daten erhoben werden:</p>
+      <ul>
+        <li>Alter, Geschlecht und Nationalitat oder ethnische Herkunft der betroffenen Person (besondere Kategorie gemas DSGVO Art. 9 Abs. 1)</li>
+        <li>Beschreibung der tatenden Person</li>
+        <li>Datum, Uhrzeit und Ort des Vorfalls</li>
+        <li>Freitextbeschreibung des Vorfalls</li>
+        <li>Bezug zum 13. Februar</li>
+        <li>Zeitstempel der Einreichung</li>
+      </ul>
+      <p>Wir erheben keine Namen, E-Mail-Adressen, IP-Adressen oder andere Daten, die Sie als Einsender identifizieren. Einreichungen sind anonymisiert.</p>
+
+      <h2>3. Rechtsgrundlage der Verarbeitung</h2>
+      <p>Die Verarbeitung gewohnlicher personenbezogener Daten erfolgt auf Grundlage des <strong>berechtigten Interesses</strong> (DSGVO Art. 6 Abs. 1 lit. f) an der Dokumentation und Sensibilisierung fur Diskriminierung in Dresden zu burgerschafllichen und wissenschaftlichen Zwecken.</p>
+      <p>Die Verarbeitung besonderer Kategorien (ethnische Herkunft, politische Zugehorigkeit) erfolgt auf Grundlage Ihrer <strong>ausdriicklichen Einwilligung</strong> gemas DSGVO Art. 9 Abs. 2 lit. a, die Sie durch das Ankreuzen des Einwilligungsfelds im Formular erteilen. Sie konnen diese Einwilligung jederzeit widerrufen, indem Sie die Loschung Ihrer Einreichung beantragen.</p>
+
+      <h2>4. Wer Zugriff auf Ihre Daten hat</h2>
+      <ul>
+        <li>Alle Einreichungen werden vor der Veroffentlichung von einem menschlichen Moderator gepruft</li>
+        <li>Genehmigte Einreichungen werden anonym auf der Karte veroffentlicht</li>
+        <li>Abgelehnte Einreichungen werden nicht veroffentlicht und innerhalb von 30 Tagen geloscht</li>
+        <li>Daten werden in Google Firebase Firestore (EU-Server, Region Frankfurt) gespeichert. Google agiert als Auftragsverarbeiter</li>
+        <li>Keine Daten werden verkauft, an Werbetreibende weitergegeben oder ohne gesetzliche Verpflichtung an Behorden ubermittelt</li>
+      </ul>
+
+      <h2>5. Speicherdauer</h2>
+      <p>Genehmigte Vorfallsdaten werden fur die Dauer des Projekts gespeichert, da sie Teil des offentlichen historischen Archivs der Diskriminierung in Dresden sind. Abgelehnte Einreichungen werden innerhalb von 30 Tagen geloscht. Auf Antrag wird eine genehmigte Einreichung innerhalb von 14 Tagen geloscht.</p>
+
+      <h2>6. Cookies und Tracking</h2>
+      <p>Diese Website verwendet keine Tracking-Cookies, Analysedienste oder Werbung. Firebase Firestore setzt keine Tracking-Cookies. Es ist kein Cookie-Banner erforderlich, da keine nicht essenziellen Cookies oder Geratespeicher verwendet werden.</p>
+
+      <h2>7. Ihre Rechte gemas DSGVO</h2>
+      <p>Sie haben das Recht auf Auskunft, Berichtigung, Loschung, Einschrankung der Verarbeitung und Widerspruch. Sie konnen Beschwerde beim Bundesbeauftragten fur den Datenschutz (BfDI: www.bfdi.bund.de) oder beim Sachsischen Datenschutzbeauftragten (www.saechsdsb.de) einlegen.</p>
+
+      <h2>8. Minderjahrige</h2>
+      <p>Diese Plattform richtet sich nicht an Personen unter 16 Jahren.</p>
+
+      <div class="contact-block">
+        <strong>Kontakt fur Datenanfragen</strong>
+        Fur Loschungs-, Auskunfts- oder Berichtigungsanfragen wenden Sie sich bitte an: <strong>REPLACE_WITH_YOUR_CONTACT_EMAIL</strong>
+      </div>
+
+      <p class="last-updated">Zuletzt aktualisiert: Marz 2026.</p>
+    </div>
+
+  </div>
+
+  <script>
+    function showLang(lang, btn) {
+      document.querySelectorAll(".privacy-content").forEach(el => el.classList.remove("active"));
+      document.querySelectorAll(".lang-toggle button").forEach(b => b.classList.remove("active"));
+      document.getElementById("privacy-" + lang).classList.add("active");
+      btn.classList.add("active");
+    }
+  </script>
+</body>
+</html>
